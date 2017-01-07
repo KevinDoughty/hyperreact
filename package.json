@@ -1,6 +1,6 @@
 {
   "name": "hyperreact",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Any resemblance to an animation library is purely coincidental",
   "main": "hyperreact.js",
   "directories": {
@@ -34,14 +34,15 @@
     "babel-eslint": "^7.1.1",
     "babel-loader": "^6.2.10",
     "babel-preset-es2015-rollup": "^3.0.0",
+    "babel-preset-react": "^6.16.0",
     "chai": "^3.5.0",
     "eslint": "^3.12.2",
     "hyperact": "0.0.4",
     "mocha": "^3.2.0",
-    "react": "^15.4.1",
     "rollup": "^0.39.2",
     "rollup-plugin-babel": "^2.7.1",
     "rollup-plugin-eslint": "^3.0.0",
+    "rollup-plugin-node-resolve": "^2.0.0",
     "webpack": "^2.2.0-rc.3",
     "webpack-dev-server": "^2.2.0-rc.0"
   }

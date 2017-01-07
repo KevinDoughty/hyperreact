@@ -1,5 +1,6 @@
 import babel from "rollup-plugin-babel";
 import eslint from "rollup-plugin-eslint";
+import resolve from "rollup-plugin-node-resolve";
 
 function debug(options) {
 	var plugin = {};
@@ -17,10 +18,11 @@ function debug(options) {
 
 var plugins = [
 	eslint(), // redundant with pkg.scripts.test
+	resolve(),
 	babel({
 		exclude: "node_modules/**",
 		babelrc: false,
-		presets: ["es2015-rollup"] // .babelrc is required for pkg.scripts.test, override here // https://github.com/rollup/rollup-plugin-babel/issues/14#issuecomment-157445431
+		presets: ["es2015-rollup","react"] // .babelrc is required for pkg.scripts.test, override here // https://github.com/rollup/rollup-plugin-babel/issues/14#issuecomment-157445431
 	})//,
 	//debug({debug:"DEBUG:"})
 ]

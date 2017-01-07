@@ -1,14 +1,6 @@
 import React from 'react';
 import { activate, flushTransaction, typeForStyle } from 'hyperact';
 
-// import React from "react";
-// import { activate, flushTransaction } from "./core.js";
-// import { typeForStyle } from "./style/style.js";
-
-// export * from "./core.js";
-// export * from "./types.js";
-// export { typeForStyle } from "./style/style.js";
-
 function isFunction(w) {
 	// WET
 	return w && {}.toString.call(w) === "[object Function]";
@@ -175,6 +167,8 @@ function animate(InnerComponent, implicitAnimations, initialValues) {
 
 	var displayName = "AnimateClass";
 	var AnimateClass = React.createClass({
+		displayName: "AnimateClass",
+
 		mounted: true,
 		getInitialState: function getInitialState() {
 			return {

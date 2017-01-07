@@ -31,6 +31,10 @@ module.exports = [
 			library: "Hyperreact",
 			libraryTarget: "umd"
 		},
+		externals: {
+			"react":"react",
+			"hyperact":"hyperact"
+		},
 		module: {
 			loaders: [
 				{

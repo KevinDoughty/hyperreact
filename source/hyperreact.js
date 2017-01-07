@@ -1,15 +1,5 @@
-// import React from "react";
-// import { activate, flushTransaction } from "./core.js";
-// import { typeForStyle } from "./style/style.js";
-
-// export * from "./core.js";
-// export * from "./types.js";
-// export { typeForStyle } from "./style/style.js";
-
 import React from "react";
 import { activate, flushTransaction, typeForStyle } from "hyperact";
-
-export * from "hyperact";
 
 function isFunction(w) { // WET
 	return w && {}.toString.call(w) === "[object Function]";
