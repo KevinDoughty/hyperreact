@@ -5,7 +5,7 @@ function isFunction(w) { // WET
 	return w && {}.toString.call(w) === "[object Function]";
 }
 
-export function animate(InnerComponent, implicitAnimations, initialValues) { // TODO: explicitAnimations // TODO: stateless components and (don't handle) fragments
+export function activateComponent(InnerComponent, implicitAnimations, initialValues) { // TODO: explicitAnimations // TODO: stateless components and (don't handle) fragments
 	var propValues = function(props) {
 		var values = {};
 		var prefix = "style.";
@@ -47,37 +47,42 @@ export function animate(InnerComponent, implicitAnimations, initialValues) { // 
 			if (property.substring(0,prefix.length) === prefix) result = typeForStyle(property.substring(prefix.length));
 			return result;
 		},
-		input: function(property,prettyValue) { // input is from CSS
-			var prefix = "style.";
-			var result = prettyValue;
+		input: function(property,prettyValue) { // input is fromCSS
+			const prefix = "style.";
+			let result = prettyValue;
 			if (property.substring(0,prefix.length) === prefix) {
-				var key = property.substring(prefix.length);
-				var type = typeForStyle(key);
+				const key = property.substring(prefix.length);
+				const type = typeForStyle(key);
 				if (prettyValue === null || typeof prettyValue === "undefined") {
 					console.log("---> Hyperreact input undefined");
 					result = type.zero();
-				} else result = type.input(prettyValue);
+				}
+				if (isFunction(type.input)) result = type.input(result);
 			}
 			if (this.component && isFunction(this.component.input)) result = this.component.input.call(this.component,property,result); // Not as useful because it includes unit suffix. Also unsure about native
 			return result;
 		},
-		output: function(property,uglyValue) { // output is to CSS // value is the ugly value // BUG FIXME: sometimes the pretty value?
-			var result = uglyValue;
-			var prefix = "style.";
+		output: function(property,uglyValue) { // output is toCSS // value is the ugly value // BUG FIXME: sometimes the pretty value?
+			let result = uglyValue;
+			const prefix = "style.";
 			if (property.substring(0,prefix.length) === prefix) {
 				var key = property.substring(prefix.length);
 				var type = typeForStyle(key);
 				if (uglyValue === null || typeof uglyValue === "undefined") {
 					console.log("---> Hyperreact output undefined");
-					result = type.toCssValue(type.zero());
-				} else result = type.output(uglyValue); // uglyValue should be ugly but is not ?!
+					result = type.zero();
+				}
+				if (isFunction(type.output)) result = type.output(result); // uglyValue should be ugly but is not ?!
 			}
 			if (this.component && isFunction(this.component.output)) result = this.component.output.call(this.component,property,result); // Not as useful because it includes unit suffix. Also unsure about native
 			return result;
 		},
 		display: function() {
-			if (this.component && this.component.props.hyperDisplay) this.component.props.hyperDisplay.call(this.component);
-			else if (this.component) this.component.forceUpdate();
+			if (this.component && this.component.props.hyperDisplay) {
+				this.component.props.hyperDisplay.call(this.component);
+			} else if (this.component) {
+				this.component.forceUpdate();
+			}
 		},
 		animationForKey: function(key,value,previous,presentation) {
 			if (key === "style") {
@@ -107,28 +112,27 @@ export function animate(InnerComponent, implicitAnimations, initialValues) { // 
 		flushTransaction(); // Required: If we are not actually in a transaction, tick will happen immediately with the same time value, preventing a proper presentationLayer from being constructed
 	};
 
-
 	function processElement(element,controller) {
-		var props = Object.assign({},element.props);
-		var style = Object.assign({},props.style);
-		var prefix = "style.";
-		var layer = controller.layer || {};
-		var model = controller.model || controller.props;
+		const props = Object.assign({},element.props);
+		const style = Object.assign({},props.style);
+		const prefix = "style.";
+		const layer = controller.layer || {};
+		const model = controller.model || controller.props;
 		Object.keys(style).forEach( function(key) { // if there are changes to style, intercept and apply here.
-			var property = prefix + key;
-			var type = typeForStyle(key);
-			var oldValue = model[property];
-			var newValue = style[key];
+			const property = prefix + key;
+			const type = typeForStyle(key);
+			const oldValue = model[property];
+			const newValue = style[key];
 			if (oldValue !== newValue) { // convert to strings and compare. Without isEqual
-				newValue = type.input(style[key]); // could be a problem
-				layer[property] = newValue;
+				if (type.input) layer[property] = type.input(newValue); // could be a problem
+				else layer[property] = newValue;
 			}
 		}.bind(this));
-		var presentation = controller.presentation;
+		const presentation = controller.presentation;
 		if (presentation) Object.keys(presentation).forEach( function(key,index) {
 			if (key.substring(0,prefix.length) === prefix) {
-				var property = key.substring(prefix.length);
-				var newValue = presentation[key];
+				const property = key.substring(prefix.length);
+				const newValue = presentation[key];
 				style[property] = newValue;
 			}
 		});
@@ -157,7 +161,6 @@ export function animate(InnerComponent, implicitAnimations, initialValues) { // 
 
 		return Subclass;
 	})(InnerComponent);
-
 
 
 
@@ -195,7 +198,6 @@ export function animate(InnerComponent, implicitAnimations, initialValues) { // 
 		render: function() {
 			var childInstance = this.directChildInstance;
 			var presentation = childInstance ? childInstance.presentation : this.props;
-			
 			var output = propValues(presentation);
 			output.key = displayName;
 			if (Subclass) {

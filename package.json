@@ -1,6 +1,6 @@
 {
   "name": "hyperreact",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Any resemblance to an animation library is purely coincidental",
   "main": "hyperreact.js",
   "directories": {
@@ -8,9 +8,9 @@
     "test": "test"
   },
   "scripts": {
-    "build": "HYPERREACT=build ./node_modules/.bin/rollup -c && HYPERREACT=build webpack --display-modules --progress --colors",
-    "dev": "./node_modules/.bin/rollup -c && webpack --display-modules --progress --colors",
-    "test": "eslint source/*.js && eslint test/*.js --rule 'no-undef:0' && mocha --compilers js:babel-core/register --colors"
+    "build": "./node_modules/.bin/rollup -c && WEBPACK_ENV=build BABEL_ENV=webpack webpack --display-modules --progress --colors",
+    "dev": "./node_modules/.bin/rollup -c && WEBPACK_ENV=dev BABEL_ENV=webpack webpack --display-modules --progress --colors --watch",
+    "test": "eslint source/*.js && eslint test/*.js --rule 'no-undef:0' && BABEL_ENV=mocha mocha --compilers js:babel-core/register --colors"
   },
   "repository": {
     "type": "git",
@@ -30,7 +30,8 @@
   },
   "homepage": "https://github.com/KevinDoughty/hyperreact#readme",
   "dependencies": {
-    "hyperact": "^0.0.6"
+    "hyperact": "^0.0.10",
+    "react": "^15.4.2"
   },
   "devDependencies": {
     "babel-core": "^6.21.0",

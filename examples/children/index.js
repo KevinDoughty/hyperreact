@@ -1,9 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { HyperSet, HyperRect, hyperMakeRect, currentTransaction, transformType } from "hyperact";
-import { animate } from "../../hyperreact";
-
-
+import { HyperSet, HyperRect, hyperMakeRect, currentTransaction, transformType, opacityType, registerAnimatableStyles } from "hyperact";
+import { activateComponent } from "../../hyperreact.mjs";
 
 const duration = 1.0;
 const margin = 8;
@@ -12,7 +10,10 @@ const dimension = Math.min(128, document.body.offsetWidth - margin - padding); /
 const unmountedScale = 2;
 const mountedScale = 1;
 
-
+registerAnimatableStyles({
+	transform: transformType,
+	opacity: opacityType
+});
 
 function push(progress) {
 	const result = 1 + 0.5 * (1-progress) * Math.sin(progress * Math.PI * 2);
@@ -42,12 +43,7 @@ function frameOfItemAtIndexInWidth(index,width) {
 	return hyperMakeRect(x, y, dimension, dimension);
 }
 
-
-
-// const ItemClass = animate(class extends React.Component {
-// render() {
-// const props = this.props;
-const ItemClass = animate( props => {
+const ItemClass = activateComponent( props => {
 	const keyCode = props.letter;
 	return React.DOM.div({
 		className: "letter",
@@ -63,7 +59,6 @@ const ItemClass = animate( props => {
 			opacity: props.mounted
 		}
 	}, String.fromCharCode(keyCode));
-// }
 },
 	{
 		frame: function(nu,old,now,target) {
@@ -123,11 +118,10 @@ const ItemClass = animate( props => {
 		}
 	}
 );
-const Item = React.createFactory(ItemClass);
 
 
 
-const CollectionClass = animate( React.createClass({
+const CollectionClass = activateComponent( React.createClass({
 	animationForKey: function(key,value,previous,presentation) {
 		if (key === "letters") {
 			return {

@@ -6,7 +6,7 @@ function isFunction(w) {
 	return w && {}.toString.call(w) === "[object Function]";
 }
 
-function animate(InnerComponent, implicitAnimations, initialValues) {
+function activateComponent(InnerComponent, implicitAnimations, initialValues) {
 	// TODO: explicitAnimations // TODO: stateless components and (don't handle) fragments
 	var propValues = function propValues(props) {
 		var values = {};
@@ -53,7 +53,7 @@ function animate(InnerComponent, implicitAnimations, initialValues) {
 			return result;
 		},
 		input: function input(property, prettyValue) {
-			// input is from CSS
+			// input is fromCSS
 			var prefix = "style.";
 			var result = prettyValue;
 			if (property.substring(0, prefix.length) === prefix) {
@@ -62,13 +62,14 @@ function animate(InnerComponent, implicitAnimations, initialValues) {
 				if (prettyValue === null || typeof prettyValue === "undefined") {
 					console.log("---> Hyperreact input undefined");
 					result = type.zero();
-				} else result = type.input(prettyValue);
+				}
+				if (isFunction(type.input)) result = type.input(result);
 			}
 			if (this.component && isFunction(this.component.input)) result = this.component.input.call(this.component, property, result); // Not as useful because it includes unit suffix. Also unsure about native
 			return result;
 		},
 		output: function output(property, uglyValue) {
-			// output is to CSS // value is the ugly value // BUG FIXME: sometimes the pretty value?
+			// output is toCSS // value is the ugly value // BUG FIXME: sometimes the pretty value?
 			var result = uglyValue;
 			var prefix = "style.";
 			if (property.substring(0, prefix.length) === prefix) {
@@ -76,14 +77,19 @@ function animate(InnerComponent, implicitAnimations, initialValues) {
 				var type = typeForStyle(key);
 				if (uglyValue === null || typeof uglyValue === "undefined") {
 					console.log("---> Hyperreact output undefined");
-					result = type.toCssValue(type.zero());
-				} else result = type.output(uglyValue); // uglyValue should be ugly but is not ?!
+					result = type.zero();
+				}
+				if (isFunction(type.output)) result = type.output(result); // uglyValue should be ugly but is not ?!
 			}
 			if (this.component && isFunction(this.component.output)) result = this.component.output.call(this.component, property, result); // Not as useful because it includes unit suffix. Also unsure about native
 			return result;
 		},
 		display: function display() {
-			if (this.component && this.component.props.hyperDisplay) this.component.props.hyperDisplay.call(this.component);else if (this.component) this.component.forceUpdate();
+			if (this.component && this.component.props.hyperDisplay) {
+				this.component.props.hyperDisplay.call(this.component);
+			} else if (this.component) {
+				this.component.forceUpdate();
+			}
 		},
 		animationForKey: function animationForKey(key, value, previous, presentation) {
 			if (key === "style") {
@@ -126,8 +132,8 @@ function animate(InnerComponent, implicitAnimations, initialValues) {
 			var newValue = style[key];
 			if (oldValue !== newValue) {
 				// convert to strings and compare. Without isEqual
-				newValue = type.input(style[key]); // could be a problem
-				layer[property] = newValue;
+				if (type.input) layer[property] = type.input(newValue); // could be a problem
+				else layer[property] = newValue;
 			}
 		}.bind(this));
 		var presentation = controller.presentation;
@@ -200,7 +206,6 @@ function animate(InnerComponent, implicitAnimations, initialValues) {
 		render: function render() {
 			var childInstance = this.directChildInstance;
 			var presentation = childInstance ? childInstance.presentation : this.props;
-
 			var output = propValues(presentation);
 			output.key = displayName;
 			if (Subclass) {
@@ -225,4 +230,4 @@ function animate(InnerComponent, implicitAnimations, initialValues) {
 	return AnimateClass;
 }
 
-export { animate };
+export { activateComponent };
