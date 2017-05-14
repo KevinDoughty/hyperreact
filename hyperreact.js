@@ -164,21 +164,36 @@
                 });
                 return values;
             };
-            // 	var applyAnimations = function(arrayOrDict,childInstance) {
-            // 		if (Array.isArray(arrayOrDict)) {
-            // 			arrayOrDict.forEach( function(animation) {
-            // 				childInstance.addAnimation(animation); // addAnimation does not register
-            // 			});
-            // 		} else if (arrayOrDict) { // TODO: is object check
-            // 			Object.keys(arrayOrDict).forEach( function(name) {
-            // 				childInstance.addAnimation(arrayOrDict[name],name); // addAnimation does not register
-            // 			});
-            // 		}
-            // 	};
-            var processProps = function processProps(props, childInstance) {
-                childInstance.layer = props;
-                __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_hyperact__["flushTransaction"])();
+            var applyAnimations = function applyAnimations(arrayOrDict, childInstance) {
+                //console.log("hyperreact apply animations:%s;",JSON.stringify(arrayOrDict));
+                if (Array.isArray(arrayOrDict)) {
+                    arrayOrDict.forEach(function(animation) {
+                        childInstance.addAnimation(animation);
+                    });
+                } else if (arrayOrDict) {
+                    // TODO: is object check
+                    Object.keys(arrayOrDict).forEach(function(name) {
+                        childInstance.addAnimation(arrayOrDict[name], name);
+                    });
+                }
             };
+            var processProps = function processProps(props, childInstance) {
+                var result = {};
+                Object.keys(props).forEach(function(key) {
+                    if (key === "animations") {
+                        var animations = props.animations;
+                        applyAnimations(animations, childInstance);
+                    } else {
+                        //if (key !== "children") {
+                        result[key] = props[key];
+                    }
+                }.bind(this));
+                childInstance.layer = result;
+            };
+            // 	var processProps = function(props,childInstance) {
+            // 		childInstance.layer = props;
+            // 		flushTransaction(); // Not sure I like this one, but flushed results would be expected here, for example walking presentationLayer in a collection implementation that has fake set animation.
+            // 	};
             function Delegate(component) {
                 this.component = component;
             }
@@ -199,12 +214,17 @@
                         var type = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_hyperact__["typeForStyle"])(key);
                         if (prettyValue === null || typeof prettyValue === "undefined") {
                             console.log("---> Hyperreact input undefined");
-                            result = type.zero();
+                            if (type) result = type.zero();
                         }
-                        if (isFunction(type.input)) result = type.input(result);
+                        if (type && isFunction(type.input)) result = type.input(result);
+                    } else {
+                        var _type = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_hyperact__["typeForStyle"])(property);
+                        //if (property === "transform") console.log("input type:%s;",JSON.stringify(type));
+                        if (_type && isFunction(_type.input)) result = _type.input(result);
                     }
                     if (this.component && isFunction(this.component.input)) result = this.component.input.call(this.component, property, result);
                     // Not as useful because it includes unit suffix. Also unsure about native
+                    //if (property === "transform") console.log("input pretty:%s; ugly:%s;",JSON.stringify(prettyValue),JSON.stringify(result));
                     return result;
                 },
                 output: function output(property, uglyValue) {
@@ -216,12 +236,17 @@
                         var type = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_hyperact__["typeForStyle"])(key);
                         if (uglyValue === null || typeof uglyValue === "undefined") {
                             console.log("---> Hyperreact output undefined");
-                            result = type.zero();
+                            if (type) result = type.zero();
                         }
-                        if (isFunction(type.output)) result = type.output(result);
+                        if (type && isFunction(type.output)) result = type.output(result);
+                    } else {
+                        var _type2 = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_hyperact__["typeForStyle"])(property);
+                        //if (property === "transform") console.log("output type:%s;",JSON.stringify(type));
+                        if (_type2 && isFunction(_type2.output)) result = _type2.output(result);
                     }
                     if (this.component && isFunction(this.component.output)) result = this.component.output.call(this.component, property, result);
                     // Not as useful because it includes unit suffix. Also unsure about native
+                    //if (property === "transform") console.log("output ugly:%s; pretty:%s;",JSON.stringify(uglyValue),JSON.stringify(result));
                     return result;
                 },
                 display: function display() {
@@ -269,7 +294,8 @@
                     var newValue = style[key];
                     if (oldValue !== newValue) {
                         // convert to strings and compare. Without isEqual
-                        if (type.input) layer[property] = type.input(newValue); else layer[property] = newValue;
+                        //console.log("hyperreact processElement type:%s;",JSON.stringify(type));
+                        if (type && isFunction(type.input)) layer[property] = type.input(newValue); else layer[property] = newValue;
                     }
                 }.bind(this));
                 var presentation = controller.presentation;

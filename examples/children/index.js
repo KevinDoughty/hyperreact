@@ -1,24 +1,22 @@
-import React from "react";
+import { Component } from "react";
 import ReactDOM from "react-dom";
-import { HyperSet, HyperRect, hyperMakeRect, currentTransaction, transformType, opacityType, registerAnimatableStyles } from "hyperact";
+import { HyperSet, hyperMakeRect, transformType, opacityType, registerAnimatableStyles } from "hyperact";
 import { activateComponent } from "../../hyperreact.mjs";
 
 const duration = 1.0;
 const margin = 8;
 const padding = 8;
 const dimension = Math.min(128, document.body.offsetWidth - margin - padding); // width & height in px
-const unmountedScale = 2;
-const mountedScale = 1;
 
-registerAnimatableStyles({
+registerAnimatableStyles({ // an inconvenience that will eventually allow tree shaking unused animation types
 	transform: transformType,
 	opacity: opacityType
 });
 
-function push(progress) {
-	const result = 1 + 0.5 * (1-progress) * Math.sin(progress * Math.PI * 2);
-	return Number(result).toFixed(4);
-}
+// function push(progress) {
+// 	const result = 1 + 0.5 * (1-progress) * Math.sin(progress * Math.PI * 2);
+// 	return Number(result).toFixed(4);
+// }
 
 function easing(progress) {
 	const omega = 10;
@@ -43,23 +41,28 @@ function frameOfItemAtIndexInWidth(index,width) {
 	return hyperMakeRect(x, y, dimension, dimension);
 }
 
-const ItemClass = activateComponent( props => {
+const Item = activateComponent( props => {
 	const keyCode = props.letter;
-	return React.DOM.div({
-		className: "letter",
-		key:"InnerItem"+keyCode,
-		style: {
-			position:"absolute",
-			left:props.frame.origin.x+"px",
-			top: props.frame.origin.y+"px",
-			width:props.frame.size.width+"px",
-			height:props.frame.size.height+"px",
-			fontSize:Math.min(props.frame.size.width, props.frame.size.height)+"px",
-			fontFamily:"monospace",
-			opacity: props.mounted
-		}
-	}, String.fromCharCode(keyCode));
-},
+	const style= {
+		position:"absolute",
+		left:props.frame.origin.x+"px",
+		top: props.frame.origin.y+"px",
+		width:props.frame.size.width+"px",
+		height:props.frame.size.height+"px",
+		fontSize:Math.min(props.frame.size.width, props.frame.size.height)+"px",
+		fontFamily:"monospace",
+		opacity: props.mounted
+	};
+	return (
+		<div
+			className="letter"
+			key={"InnerItem"+keyCode}
+			style={style}
+		>
+			{String.fromCharCode(keyCode)}
+		</div>
+	);
+}, // second argument to activateComponent allows for functional components (otherwise component should implement animationForKey)
 	{
 		frame: function(nu,old,now,target) {
 			if (old === null || typeof old === "undefined") old = nu;
@@ -70,19 +73,11 @@ const ItemClass = activateComponent( props => {
 				from: "translate3d("+old.origin.x+"px, "+old.origin.y+"px, 0px) scale(1,1) translate3d(0px, 0px, 0px)",
 				to: "translate3d("+nu.origin.x+"px, "+nu.origin.y+"px, 0px) scale(1,1) translate3d(0px, 0px, 0px)",
 				easing: easing
-			}
+			};
 		},
 		mounted: duration,
 		NOTmounted: function(nu,old,now,target) {
 			if (!old) old = 0;
-			let scaleFrom = 1;
-			let scaleTo = 1;
-			if (nu === 0) scaleTo = 2;
-			if (old === 0) scaleFrom = 2;
-			if (old === 0 && nu === 0) {
-				scaleFrom = 1;
-				scaleTo = 1;
-			}
 			return [
 				{
 					property:"style.zIndex",
@@ -114,15 +109,15 @@ const ItemClass = activateComponent( props => {
 				from: "translate3d("+(-x)+"px, "+(-y)+"px, 0px) scale("+old+","+old+") translate3d("+(x * ratio)+"px, "+(y * ratio)+"px, 0px)",
 				to: "translate3d("+(-x)+"px, "+(-y)+"px, 0px) scale("+nu+","+nu+") translate3d("+(x)+"px, "+(y)+"px, 0px)",
 				easing: easing
-			}
+			};
 		}
 	}
 );
 
 
 
-const CollectionClass = activateComponent( React.createClass({
-	animationForKey: function(key,value,previous,presentation) {
+const Collection = activateComponent( class extends Component {
+	animationForKey(key,value,previous,presentation) {
 		if (key === "letters") {
 			return {
 				property: "letters",
@@ -131,8 +126,8 @@ const CollectionClass = activateComponent( React.createClass({
 				easing: "step-end"
 			};
 		}
-	},
-	render: function() {
+	}
+	render() {
 		const presentationLetters = this.props.letters;
 		const model = this.model;
 		const modelLetters = model.letters;
@@ -144,37 +139,41 @@ const CollectionClass = activateComponent( React.createClass({
 			const keyCode = presentationLetters[presentationIndex];
 			const isIn = (modelLetters[modelIndex] === keyCode);
 			const frame = frameOfItemAtIndexInWidth(modelIndex, currentWidth); // All item sizes must be equal in this simple example
-			children.push( 
-				React.createElement(ItemClass, {
-					key: "OuterItem"+keyCode,
-					letter: keyCode,
-					index: modelIndex,
-					frame: frame,
-					mounted: isIn ? 1 : 0,
-					zoom:this.props.zoom,
-					scale:this.props.scale
-				})
-			);
+			const props = {
+				key: "OuterItem"+keyCode,
+				letter: keyCode,
+				index: modelIndex,
+				frame: frame,
+				mounted: isIn ? 1 : 0,
+				zoom:this.props.zoom,
+				scale:this.props.scale
+			};
+			children.push( <Item {...props} /> );
 			if (isIn) modelIndex++;
 		}
-		return React.DOM.div({
-			className: "collection"
-		}, children);
+		return (
+			<div className="collection">
+				{children}
+			</div>
+		);
 	}
-}));
-const Collection = React.createFactory(CollectionClass);
+});
 
-
-
-const AppClass = React.createClass({
-	getInitialState: function() {
-		return { letters:[], zoom: 1, scale: 1 };
-	},
+const App = class extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			letters:[],
+			zoom: 1,
+			scale: 1,
+			keydown: this.keydown.bind(this),
+			resize: this.resize.bind(this)
+		};
+	}
 	keydown(e) {
 		let letters = this.state.letters.slice(0);
 		const keyCode = e.keyCode;
 		const index = letters.indexOf(keyCode);
-		const letter = String.fromCharCode(keyCode);
 		let front = [];
 		let back = [];
 		if (index === -1) { // add
@@ -186,30 +185,32 @@ const AppClass = React.createClass({
 			letters = [].concat(front).concat(back);
 		}
 		this.setState({ letters: letters });
-	},
+	}
 	resize(e) {
 		const newZoom = zoomInner.offsetHeight / zoomOuter.offsetHeight;
 		const oldZoom = this.state.zoom;
 		this.setState({ zoom: newZoom, scale: newZoom / oldZoom });
-	},
-	componentDidMount: function() {
-		document.addEventListener("keydown", this.keydown);
-		window.addEventListener('resize',this.resize);
-	},
-	componentWillUnmount: function() {
-		window.removeEventListener('resize',this.resize);
-		document.removeEventListener("keydown", this.keydown);
-	},
-	render: function() {
-		return Collection({
+	}
+	componentDidMount() {
+		document.addEventListener("keydown", this.state.keydown);
+		window.addEventListener("resize",this.state.resize);
+	}
+	componentWillUnmount() {
+		window.removeEventListener("resize",this.state.resize);
+		document.removeEventListener("keydown", this.state.keydown);
+	}
+	render() {
+		const props = {
 			letters: this.state.letters,
 			width:document.body.offsetWidth,
 			zoom:this.state.zoom,
 			scale:this.state.scale
-		});
+		};
+		return (
+			<Collection {...props} />
+		);
 	}
-});
-const App = React.createFactory(AppClass);
+};
 
 
 
@@ -220,5 +221,4 @@ zoomInner.style.height = zoomOuter.offsetHeight + "px";
 
 
 
-ReactDOM.render(App({
-}), document.getElementById("root"));
+ReactDOM.render(<App />, document.getElementById("root"));
