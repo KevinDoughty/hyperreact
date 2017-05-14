@@ -17,9 +17,10 @@
             /******/
             // Check if module is in cache
             /******/
-            if (installedModules[moduleId]) /******/
-            return installedModules[moduleId].exports;
-            /******/
+            if (installedModules[moduleId]) {
+                /******/
+                return installedModules[moduleId].exports;
+            }
             /******/
             // Create a new module (and put it into the cache)
             /******/
@@ -133,6 +134,8 @@
         Object.defineProperty(__webpack_exports__, "__esModule", {
             value: true
         });
+        /* harmony export (immutable) */
+        __webpack_exports__["activateComponent"] = activateComponent;
         /* harmony import */
         var __WEBPACK_IMPORTED_MODULE_0_react__ = __webpack_require__(1);
         /* harmony import */
@@ -141,8 +144,6 @@
         var __WEBPACK_IMPORTED_MODULE_1_hyperact__ = __webpack_require__(0);
         /* harmony import */
         var __WEBPACK_IMPORTED_MODULE_1_hyperact___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_hyperact__);
-        /* harmony export (immutable) */
-        __webpack_exports__["activateComponent"] = activateComponent;
         function isFunction(w) {
             // WET
             return w && {}.toString.call(w) === "[object Function]";
@@ -213,7 +214,7 @@
                         var key = property.substring(prefix.length);
                         var type = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_hyperact__["typeForStyle"])(key);
                         if (prettyValue === null || typeof prettyValue === "undefined") {
-                            console.log("---> Hyperreact input undefined");
+                            console.log("---\x3e Hyperreact input undefined");
                             if (type) result = type.zero();
                         }
                         if (type && isFunction(type.input)) result = type.input(result);
@@ -235,7 +236,7 @@
                         var key = property.substring(prefix.length);
                         var type = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_hyperact__["typeForStyle"])(key);
                         if (uglyValue === null || typeof uglyValue === "undefined") {
-                            console.log("---> Hyperreact output undefined");
+                            console.log("---\x3e Hyperreact output undefined");
                             if (type) result = type.zero();
                         }
                         if (type && isFunction(type.output)) result = type.output(result);
