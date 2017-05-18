@@ -6,9 +6,9 @@ function isFunction(w) { // WET
 }
 
 export function activateComponent(InnerComponent, implicitAnimations, initialValues) { // TODO: explicitAnimations // TODO: stateless components and (don't handle) fragments
-	var propValues = function(props) {
-		var values = {};
-		var prefix = "style.";
+	const propValues = function(props) {
+		const values = {};
+		const prefix = "style.";
 		Object.keys(props).forEach( function(key) {
 			if (key === "children") { // Opaque. Direct children animation (probably) not possible
 				values[key] = props[key];
@@ -20,7 +20,7 @@ export function activateComponent(InnerComponent, implicitAnimations, initialVal
 		return values;
 	};
 
-	var applyAnimations = function(arrayOrDict,childInstance) {
+	const applyAnimations = function(arrayOrDict,childInstance) {
 		//console.log("hyperreact apply animations:%s;",JSON.stringify(arrayOrDict));
 		if (Array.isArray(arrayOrDict)) {
 			arrayOrDict.forEach( function(animation) {
@@ -32,7 +32,7 @@ export function activateComponent(InnerComponent, implicitAnimations, initialVal
 			});
 		}
 	};
-	var processProps = function(props,childInstance) {
+	const processProps = function(props,childInstance) {
 		const result = {};
 		Object.keys(props).forEach( function(key) {
 			if (key === "animations") {
@@ -85,8 +85,8 @@ export function activateComponent(InnerComponent, implicitAnimations, initialVal
 			let result = uglyValue;
 			const prefix = "style.";
 			if (property.substring(0,prefix.length) === prefix) {
-				var key = property.substring(prefix.length);
-				var type = typeForStyle(key);
+				const key = property.substring(prefix.length);
+				const type = typeForStyle(key);
 				if (uglyValue === null || typeof uglyValue === "undefined") {
 					console.log("---> Hyperreact output undefined");
 					if (type) result = type.zero();
@@ -112,8 +112,8 @@ export function activateComponent(InnerComponent, implicitAnimations, initialVal
 			if (key === "style") {
 				return null;
 			}
-			var animation = false;
-			var prefix = "style.";
+			let animation = false;
+			const prefix = "style.";
 			if (key.substring(0,prefix.length) === prefix) { // No implicit animation for style
 				// Do not implicitly animate style. Will ask for animationForKey every tick, not what you want. // You might not need to register
 			} else if (isFunction(this.component.animationForKey)) {
@@ -180,7 +180,7 @@ export function activateComponent(InnerComponent, implicitAnimations, initialVal
 			flushTransaction();
 		};
 		Subclass.prototype.render = function render() {
-			var resultElement = SuperComponent.prototype.render.call(this);
+			const resultElement = SuperComponent.prototype.render.call(this);
 			return processElement(resultElement, this);
 		};
 
@@ -189,45 +189,46 @@ export function activateComponent(InnerComponent, implicitAnimations, initialVal
 
 
 
-	var displayName = "AnimateClass";
-	var AnimateClass = React.createClass({
-		mounted: true,
-		getInitialState: function() {
-			return {
+	const displayName = "AnimateClass";
+	const AnimateClass = (class extends React.Component {
+		constructor(props) {
+			super(props);
+			this.state = {
 				mounted: true,
 				hyperDisplay: function() {
 					if (this.mounted) this.forceUpdate();
 				}.bind(this)
 			};
-		},
-		directChildInstance: null,
-		delegate: null,
-		componentWillReceiveProps: function(props) {
+			this.mounted = true;
+			this.directChildInstance = null;
+			this.delegate = null;
+		}
+		componentWillReceiveProps(props) {
 			if (!this.directChildInstance) throw new Error("No child instance yet");
 			else processProps(props,this.directChildInstance);
-		},
-		componentWillMount: function() {
+		}
+		componentWillMount() {
 			if (!Subclass) {
 				this.delegate = new Delegate(this);
 				prepareAnimation(this, this.delegate);
 				this.directChildInstance = this;
 			}
-		},
-		componentWillUnmount: function() {
+		}
+		componentWillUnmount() {
 			this.mounted = false;
 			this.directChildInstance.removeAllAnimations();
 			this.directChildInstance = null;
 			if (this.delegate) this.delegate.component = null;
 			flushTransaction();
-		},
-		render: function() {
-			var childInstance = this.directChildInstance;
-			var presentation = childInstance ? childInstance.presentation : this.props;
-			var output = propValues(presentation);
+		}
+		render() {
+			const childInstance = this.directChildInstance;
+			const presentation = childInstance ? childInstance.presentation : this.props;
+			const output = propValues(presentation);
 			output.key = displayName;
 			if (Subclass) {
-				var owner = this;
-				var reference = function(component) {
+				const owner = this;
+				const reference = function(component) {
 					if (component && childInstance && childInstance !== component) {
 						throw new Error("TODO: remove animations and release, else this will attempt to activate a second time and break.");
 					} else if (component && childInstance !== component) {
@@ -237,8 +238,7 @@ export function activateComponent(InnerComponent, implicitAnimations, initialVal
 				};
 				output.ref = reference; // TODO: need to handle/restore original ref if it exists
 				output.hyperDisplay = this.state.hyperDisplay;
-				var result = React.createElement(Subclass,output);
-				return result;
+				return React.createElement(Subclass,output);
 			} else {
 				return processElement(InnerComponent(output),this);
 			}

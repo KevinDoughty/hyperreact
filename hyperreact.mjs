@@ -1,6 +1,72 @@
 import React from 'react';
 import { activate, flushTransaction, typeForStyle } from 'hyperact';
 
+var classCallCheck = function (instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+};
+
+var createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor) descriptor.writable = true;
+      Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }
+
+  return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) defineProperties(Constructor, staticProps);
+    return Constructor;
+  };
+}();
+
+
+
+
+
+
+
+
+
+var inherits = function (subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+  }
+
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+};
+
+
+
+
+
+
+
+
+
+
+
+var possibleConstructorReturn = function (self, call) {
+  if (!self) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }
+
+  return call && (typeof call === "object" || typeof call === "function") ? call : self;
+};
+
 function isFunction(w) {
 	// WET
 	return w && {}.toString.call(w) === "[object Function]";
@@ -199,61 +265,76 @@ function activateComponent(InnerComponent, implicitAnimations, initialValues) {
 	}(InnerComponent);
 
 	var displayName = "AnimateClass";
-	var AnimateClass = React.createClass({
-		displayName: "AnimateClass",
+	var AnimateClass = function (_React$Component) {
+		inherits(AnimateClass, _React$Component);
 
-		mounted: true,
-		getInitialState: function getInitialState() {
-			return {
+		function AnimateClass(props) {
+			classCallCheck(this, AnimateClass);
+
+			var _this = possibleConstructorReturn(this, (AnimateClass.__proto__ || Object.getPrototypeOf(AnimateClass)).call(this, props));
+
+			_this.state = {
 				mounted: true,
 				hyperDisplay: function () {
 					if (this.mounted) this.forceUpdate();
-				}.bind(this)
+				}.bind(_this)
 			};
-		},
-		directChildInstance: null,
-		delegate: null,
-		componentWillReceiveProps: function componentWillReceiveProps(props) {
-			if (!this.directChildInstance) throw new Error("No child instance yet");else processProps(props, this.directChildInstance);
-		},
-		componentWillMount: function componentWillMount() {
-			if (!Subclass) {
-				this.delegate = new Delegate(this);
-				prepareAnimation(this, this.delegate);
-				this.directChildInstance = this;
-			}
-		},
-		componentWillUnmount: function componentWillUnmount() {
-			this.mounted = false;
-			this.directChildInstance.removeAllAnimations();
-			this.directChildInstance = null;
-			if (this.delegate) this.delegate.component = null;
-			flushTransaction();
-		},
-		render: function render() {
-			var childInstance = this.directChildInstance;
-			var presentation = childInstance ? childInstance.presentation : this.props;
-			var output = propValues(presentation);
-			output.key = displayName;
-			if (Subclass) {
-				var owner = this;
-				var reference = function reference(component) {
-					if (component && childInstance && childInstance !== component) {
-						throw new Error("TODO: remove animations and release, else this will attempt to activate a second time and break.");
-					} else if (component && childInstance !== component) {
-						owner.directChildInstance = component;
-						// You cannot prepare here, child needs model and presentation layer at first render
-					}
-				};
-				output.ref = reference; // TODO: need to handle/restore original ref if it exists
-				output.hyperDisplay = this.state.hyperDisplay;
-				var result = React.createElement(Subclass, output);
-				return result;
-			} else {
-				return processElement(InnerComponent(output), this);
-			}
+			_this.mounted = true;
+			_this.directChildInstance = null;
+			_this.delegate = null;
+			return _this;
 		}
-	});
+
+		createClass(AnimateClass, [{
+			key: "componentWillReceiveProps",
+			value: function componentWillReceiveProps(props) {
+				if (!this.directChildInstance) throw new Error("No child instance yet");else processProps(props, this.directChildInstance);
+			}
+		}, {
+			key: "componentWillMount",
+			value: function componentWillMount() {
+				if (!Subclass) {
+					this.delegate = new Delegate(this);
+					prepareAnimation(this, this.delegate);
+					this.directChildInstance = this;
+				}
+			}
+		}, {
+			key: "componentWillUnmount",
+			value: function componentWillUnmount() {
+				this.mounted = false;
+				this.directChildInstance.removeAllAnimations();
+				this.directChildInstance = null;
+				if (this.delegate) this.delegate.component = null;
+				flushTransaction();
+			}
+		}, {
+			key: "render",
+			value: function render() {
+				var childInstance = this.directChildInstance;
+				var presentation = childInstance ? childInstance.presentation : this.props;
+				var output = propValues(presentation);
+				output.key = displayName;
+				if (Subclass) {
+					var owner = this;
+					var reference = function reference(component) {
+						if (component && childInstance && childInstance !== component) {
+							throw new Error("TODO: remove animations and release, else this will attempt to activate a second time and break.");
+						} else if (component && childInstance !== component) {
+							owner.directChildInstance = component;
+							// You cannot prepare here, child needs model and presentation layer at first render
+						}
+					};
+					output.ref = reference; // TODO: need to handle/restore original ref if it exists
+					output.hyperDisplay = this.state.hyperDisplay;
+					return React.createElement(Subclass, output);
+				} else {
+					return processElement(InnerComponent(output), this);
+				}
+			}
+		}]);
+		return AnimateClass;
+	}(React.Component);
 	return AnimateClass;
 }
 
