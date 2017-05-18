@@ -1,6 +1,6 @@
 {
   "name": "hyperreact",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Any resemblance to an animation library is purely coincidental",
   "main": "hyperreact.js",
   "directories": {
