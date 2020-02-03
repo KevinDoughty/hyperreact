@@ -51,7 +51,8 @@ const Item = activateComponent( props => {
 		height:props.frame.size.height+"px",
 		fontSize:Math.min(props.frame.size.width, props.frame.size.height)+"px",
 		fontFamily:"monospace",
-		opacity: props.mounted
+		opacity: props.mounted,
+		transform: props.transform
 	};
 	return (
 		<div
@@ -67,7 +68,8 @@ const Item = activateComponent( props => {
 		frame: function(nu,old,now,target) {
 			if (old === null || typeof old === "undefined") old = nu;
 			return { // animates a different property in response to a change in this one
-				property:"style.transform", // Actually ref.style.transform, no connection to props.style which is ignored. This is confusing.
+				//property:"style.transform", // Actually ref.style.transform, no connection to props.style which is ignored. This is confusing.
+				property:"transform",
 				type: transformType,
 				duration:duration,
 				from: "translate3d("+old.origin.x+"px, "+old.origin.y+"px, 0px) scale(1,1) translate3d(0px, 0px, 0px)",
@@ -103,7 +105,8 @@ const Item = activateComponent( props => {
 			const x = target.props.frame.origin.x + target.props.frame.size.width / 2;
 			const y = target.props.frame.origin.y + target.props.frame.size.height / 2;
 			return { // animates a different property in response to a change in this one
-				property:"style.transform", // Actually ref.style.transform, no connection to props.style which is ignored. This is confusing.
+				//property:"style.transform", // Actually ref.style.transform, no connection to props.style which is ignored. This is confusing.
+				property:"transform",
 				type: transformType,
 				duration:duration,
 				from: "translate3d("+(-x)+"px, "+(-y)+"px, 0px) scale("+old+","+old+") translate3d("+(x * ratio)+"px, "+(y * ratio)+"px, 0px)",
@@ -138,7 +141,7 @@ const Collection = activateComponent( class extends Component {
 		for (let presentationIndex = 0; presentationIndex < presentationLength; presentationIndex++) { // The trick is you have to be able to layout all possible items, will be different than the specified/model value
 			const keyCode = presentationLetters[presentationIndex];
 			const isIn = (modelLetters[modelIndex] === keyCode);
-			const frame = frameOfItemAtIndexInWidth(modelIndex, currentWidth); // All item sizes must be equal in this simple example
+			const frame = frameOfItemAtIndexInWidth(modelIndex, currentWidth); // All item sizes must be equal
 			const props = {
 				key: "OuterItem"+keyCode,
 				letter: keyCode,
@@ -157,7 +160,14 @@ const Collection = activateComponent( class extends Component {
 			</div>
 		);
 	}
-});
+}/*, 	{
+		letters: {
+			type: new HyperSet(sortLetters), // Have to specify type if not style or number // SetType takes sort function as argument
+			duration: duration,
+			easing: "step-end"
+		}
+	}*/
+);
 
 const App = class extends Component {
 	constructor(props) {
