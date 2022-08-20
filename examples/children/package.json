@@ -6,7 +6,7 @@
   "main": "bundle.js",
   "scripts": {
     "build": "WEBPACK_ENV=build webpack --mode=production --progress --colors",
-    "dev": "WEBPACK_ENV=dev webpack --mode=development --progress --colors",
+    "dev": "WEBPACK_ENV=dev webpack --mode=none --progress --colors",
     "test": "eslint index.js"
   },
   "author": "Kevin Doughty",
