@@ -1,15 +1,22 @@
 {
-	"env": {
-		"webpack": {
-			"presets": [
-				[ "es2015", { "modules" : false } ],
-				"react"
-			]
-		},
-		"mocha" : {
-			"presets": [
-				[ "es2015" ]
-			]
-		}
-	}
+    "env": {
+        "webpack": {
+            "presets": [
+                [ "env", { "modules" : false } ]
+            ]
+        },
+        "rollup": {
+            "presets": [
+                [ "env", { "modules" : false } ]
+            ],
+            "plugins": [
+                "external-helpers"
+             ]
+        },
+        "mocha" : {
+            "presets": [
+                [ "env" ]
+            ]
+        }
+    }
 }

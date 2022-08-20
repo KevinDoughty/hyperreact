@@ -1,49 +1,23 @@
 var webpack = require("webpack");
 var path = require("path");
 
-var modulesPlugins = [
-	new webpack.LoaderOptionsPlugin({ minimize: true }),
-	new webpack.optimize.UglifyJsPlugin({
-		compress: false,
-		mangle: false,
-		beautify: true,
-		comments: true,
-		sourceMap: true
-	})
-];
-if (process.env.HYPERREACT === "build") modulesPlugins = [
-	new webpack.LoaderOptionsPlugin({ minimize: true }),
-	new webpack.optimize.UglifyJsPlugin({
-		compress: true,
-		mangle: true,
-		beautify: false,
-		comments: false,
-		sourceMap: true
-	})
-];
-
 module.exports = [
-	{
-		entry: "./source/hyperreact.js",
-		output: {
-			path: __dirname,
-			filename: "hyperreact.js",
-			library: "Hyperreact",
-			libraryTarget: "umd"
-		},
-		externals: {
-			"react":"react",
-			"hyperact":"hyperact"
-		},
-		module: {
-			loaders: [
-				{
-					test: /\.js$/,
-					loader: "babel-loader",
-					exclude: /node_modules/,
-				}
-			]
-		},
-		plugins: modulesPlugins
-	}
+    {
+        entry: "./source/hyperreact.js",
+        output:{
+            filename: "hyperreact.js",
+            library: "Hyperreact",
+            libraryTarget: "umd"
+        },
+        module: {
+            rules: [
+                {
+                    test: /\.js$/,
+                    loader: "babel-loader",
+                    exclude: /node_modules/,
+                    //options: { presets: [ ["es2015", { modules: false }] ] } // .babelrc is different for mocha, so this is specified there. Also now babel-preset-env not es2015
+                }
+            ]
+        }
+    }
 ];

@@ -1,6 +1,6 @@
 {
   "name": "hyperreact",
-  "version": "0.0.5",
+  "version": "0.0.8",
   "description": "Any resemblance to an animation library is purely coincidental",
   "main": "hyperreact.js",
   "directories": {
@@ -8,9 +8,11 @@
     "test": "test"
   },
   "scripts": {
-    "build": "./node_modules/.bin/rollup -c && WEBPACK_ENV=build BABEL_ENV=webpack webpack --display-modules --progress --colors",
-    "dev": "./node_modules/.bin/rollup -c && WEBPACK_ENV=dev BABEL_ENV=webpack webpack --display-modules --progress --colors --watch",
-    "test": "eslint source/*.js && eslint test/*.js --rule 'no-undef:0' && BABEL_ENV=mocha mocha --compilers js:babel-core/register --colors"
+    "build": "BABEL_ENV=rollup ./node_modules/.bin/rollup -c && BABEL_ENV=webpack webpack --mode=production --progress --colors",
+    "dev": "BABEL_ENV=rollup ./node_modules/.bin/rollup -c && BABEL_ENV=webpack webpack --mode=development --progress --colors",
+    "lint": "eslint source/*.js ; eslint test/*.js --rule 'no-undef:0, no-self-assign:0'",
+    "test:mocha": "BABEL_ENV=mocha mocha --require babel-core/register --colors",
+    "test": "yarn lint ; yarn run test:mocha"
   },
   "repository": {
     "type": "git",
@@ -30,23 +32,25 @@
   },
   "homepage": "https://github.com/KevinDoughty/hyperreact#readme",
   "dependencies": {
-    "hyperact": "^0.0.11",
-    "react": "^15.4.2"
+    "hyperstyle": "^0.0.4",
+    "react": "^15.4.2",
+    "react-dom": "^15.4.2"
   },
   "devDependencies": {
-    "babel-core": "^6.21.0",
-    "babel-eslint": "^7.1.1",
-    "babel-loader": "^6.2.10",
-    "babel-preset-es2015-rollup": "^3.0.0",
-    "babel-preset-react": "^6.16.0",
-    "chai": "^3.5.0",
-    "eslint": "^3.12.2",
-    "mocha": "^3.2.0",
-    "rollup": "^0.39.2",
-    "rollup-plugin-babel": "^2.7.1",
-    "rollup-plugin-eslint": "^3.0.0",
-    "rollup-plugin-node-resolve": "^2.0.0",
-    "webpack": "^2.2.0-rc.3",
-    "webpack-dev-server": "^2.2.0-rc.0"
+    "babel-core": "^6.26.3",
+    "babel-eslint": "^8.2.6",
+    "babel-loader": "^7.1.5",
+    "babel-plugin-external-helpers": "^6.22.0",
+    "babel-preset-env": "^1.7.0",
+    "chai": "^4.1.2",
+    "eslint": "^5.2.0",
+    "mocha": "^10.0.0",
+    "rollup": "^0.63.4",
+    "rollup-plugin-babel": "^3.0.7",
+    "rollup-plugin-eslint": "^5.0.0",
+    "rollup-plugin-node-resolve": "^3.3.0",
+    "webpack": "^4.16.2",
+    "webpack-cli": "^3.1.0",
+    "webpack-dev-server": "^4.10.0"
   }
 }

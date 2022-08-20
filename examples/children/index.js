@@ -1,7 +1,6 @@
 import { Component } from "react";
 import ReactDOM from "react-dom";
-import { HyperSet, hyperMakeRect, transformType, opacityType, registerAnimatableStyles } from "hyperact";
-import { activateComponent } from "../../hyperreact.mjs";
+import { HyperSet, hyperMakeRect, transformType, opacityType, registerAnimatableStyles, activateComponent } from "../../dist/hyperreact.js";
 
 const duration = 1.0;
 const margin = 8;
@@ -12,11 +11,6 @@ registerAnimatableStyles({ // an inconvenience that will eventually allow tree s
 	transform: transformType,
 	opacity: opacityType
 });
-
-// function push(progress) {
-// 	const result = 1 + 0.5 * (1-progress) * Math.sin(progress * Math.PI * 2);
-// 	return Number(result).toFixed(4);
-// }
 
 function easing(progress) {
 	const omega = 10;
@@ -43,17 +37,16 @@ function frameOfItemAtIndexInWidth(index,width) {
 
 const Item = activateComponent( props => {
 	const keyCode = props.letter;
-	const style= {
-		position:"absolute",
+	const style = {
 		left:props.frame.origin.x+"px",
 		top: props.frame.origin.y+"px",
 		width:props.frame.size.width+"px",
 		height:props.frame.size.height+"px",
 		fontSize:Math.min(props.frame.size.width, props.frame.size.height)+"px",
-		fontFamily:"monospace",
 		opacity: props.mounted,
-		transform: props.transform
+        transform: props.transform
 	};
+
 	return (
 		<div
 			className="letter"
@@ -63,12 +56,10 @@ const Item = activateComponent( props => {
 			{String.fromCharCode(keyCode)}
 		</div>
 	);
-}, // second argument to activateComponent allows for functional components (otherwise component should implement animationForKey)
-	{
+}, { // second argument to activateComponent allows for functional components (otherwise component should implement animationForKey)
 		frame: function(nu,old,now,target) {
-			if (old === null || typeof old === "undefined") old = nu;
+            if (old === null || typeof old === "undefined") old = nu;
 			return { // animates a different property in response to a change in this one
-				//property:"style.transform", // Actually ref.style.transform, no connection to props.style which is ignored. This is confusing.
 				property:"transform",
 				type: transformType,
 				duration:duration,
@@ -78,25 +69,25 @@ const Item = activateComponent( props => {
 			};
 		},
 		mounted: duration,
-		NOTmounted: function(nu,old,now,target) {
-			if (!old) old = 0;
-			return [
-				{
-					property:"style.zIndex",
-					duration:duration,
-					from:-1,
-					to:-1,
-					additive:false, // default is true
-					blend:"absolute" // default is relative
-				},
-				{
-					property:"style.opacity",
-					duration:duration,
-					from:old,
-					to:nu
-				}
-			];
-		},
+		// mounted: function(nu,old,now,target) {
+		// 	if (!old) old = 0;
+		// 	return [
+		// 		{
+		// 			property:"style.zIndex",
+		// 			duration:duration,
+		// 			from:-1,
+		// 			to:-1,
+		// 			additive:false, // default is true
+		// 			blend:"absolute" // default is relative
+		// 		},
+		// 		{
+		// 			property:"style.opacity",
+		// 			duration:duration,
+		// 			from:old,
+		// 			to:nu
+		// 		}
+		// 	];
+		// },
 		zoom: function(nu,old,now,target) {
 			if (!old && !nu) nu = 1;
 			if (!old) old = nu;
@@ -105,7 +96,6 @@ const Item = activateComponent( props => {
 			const x = target.props.frame.origin.x + target.props.frame.size.width / 2;
 			const y = target.props.frame.origin.y + target.props.frame.size.height / 2;
 			return { // animates a different property in response to a change in this one
-				//property:"style.transform", // Actually ref.style.transform, no connection to props.style which is ignored. This is confusing.
 				property:"transform",
 				type: transformType,
 				duration:duration,
@@ -116,7 +106,6 @@ const Item = activateComponent( props => {
 		}
 	}
 );
-
 
 
 const Collection = activateComponent( class extends Component {
@@ -160,14 +149,7 @@ const Collection = activateComponent( class extends Component {
 			</div>
 		);
 	}
-}/*, 	{
-		letters: {
-			type: new HyperSet(sortLetters), // Have to specify type if not style or number // SetType takes sort function as argument
-			duration: duration,
-			easing: "step-end"
-		}
-	}*/
-);
+});
 
 const App = class extends Component {
 	constructor(props) {
